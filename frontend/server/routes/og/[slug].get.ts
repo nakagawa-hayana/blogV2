@@ -30,7 +30,6 @@ function pickTitleSize(title: string): number {
 
 async function renderTemplate(title: string): Promise<string> {
   const headingFont = await getFont('zen-maru-gothic-700')
-  const monoFont = await getFont('dm-mono-500')
   const titleSize = pickTitleSize(title)
 
   const node = {
@@ -46,7 +45,7 @@ async function renderTemplate(title: string): Promise<string> {
         backgroundColor: '#fbf4f4',
         border: '10px solid #e9b8cb',
         position: 'relative',
-        fontFamily: 'Zen Maru Gothic, DM Mono, sans-serif',
+        fontFamily: 'Zen Maru Gothic, sans-serif',
       },
       children: [
         {
@@ -171,17 +170,42 @@ async function renderTemplate(title: string): Promise<string> {
   return satori(node as any, {
     width: WIDTH,
     height: HEIGHT,
+    embedFont: false,
     fonts: [
       { name: 'Zen Maru Gothic', data: headingFont, weight: 700, style: 'normal' },
-      { name: 'DM Mono', data: monoFont, weight: 500, style: 'normal' },
     ],
   })
+}
+
+function getEdgeCache(): Cache | null {
+  try {
+    // @ts-ignore
+    return (globalThis as any).caches?.default ?? null
+  } catch {
+    return null
+  }
 }
 
 export default defineEventHandler(async (event) => {
   const slug = getRouterParam(event, 'slug') ?? ''
   const bare = slug.replace(/\.png$/i, '')
   const cfg = useRuntimeConfig()
+
+  const reqUrl = getRequestURL(event)
+  const cacheKey = new Request(reqUrl.toString(), { method: 'GET' })
+  const cache = getEdgeCache()
+
+  if (cache) {
+    try {
+      const hit = await cache.match(cacheKey)
+      if (hit) {
+        setHeader(event, 'Content-Type', hit.headers.get('Content-Type') || 'image/png')
+        setHeader(event, 'Cache-Control', hit.headers.get('Cache-Control') || 'public, max-age=3600, s-maxage=86400')
+        setHeader(event, 'X-OG-Cache', 'HIT')
+        return new Uint8Array(await hit.arrayBuffer())
+      }
+    } catch {}
+  }
 
   let title = 'ardririyの足跡'
 
@@ -195,7 +219,24 @@ export default defineEventHandler(async (event) => {
   const svg = await renderTemplate(title)
   const png = await svgToPng(svg, 1200)
 
+  const headers = {
+    'Content-Type': 'image/png',
+    'Cache-Control': 'public, max-age=3600, s-maxage=86400',
+  }
+
+  if (cache) {
+    try {
+      const response = new Response(png, { headers })
+      // @ts-ignore
+      const cf = (event.context as any).cloudflare
+      const putPromise = cache.put(cacheKey, response)
+      if (cf?.context?.waitUntil) cf.context.waitUntil(putPromise)
+      else await putPromise
+    } catch {}
+  }
+
   setHeader(event, 'Content-Type', 'image/png')
   setHeader(event, 'Cache-Control', 'public, max-age=3600, s-maxage=86400')
+  setHeader(event, 'X-OG-Cache', 'MISS')
   return png
 })

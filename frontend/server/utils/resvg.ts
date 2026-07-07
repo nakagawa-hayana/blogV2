@@ -34,7 +34,6 @@ async function ensureInit(): Promise<void> {
 export async function svgToPng(svg: string, width = 1200): Promise<Uint8Array> {
   await ensureInit()
   const resvg = new Resvg(svg, {
-    fitTo: { mode: 'width', value: width },
     font: { loadSystemFonts: false },
   })
   const png = resvg.render().asPng()
