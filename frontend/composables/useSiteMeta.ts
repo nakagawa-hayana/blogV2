@@ -12,7 +12,7 @@ export function useSiteMeta(input: SiteMetaInput) {
   const publishUrl = cfg.public.publishUrl.replace(/\/$/, '')
   const description = input.description ?? cfg.public.siteDescription
   const url = `${publishUrl}${input.path}`
-  const image = input.image ?? `${publishUrl}/og/default.svg`
+  const image = input.image ?? `${publishUrl}/og/default.png`
   const type = input.type ?? 'website'
   const fullTitle = input.path === '/' ? siteName : `${input.title} | ${siteName}`
 

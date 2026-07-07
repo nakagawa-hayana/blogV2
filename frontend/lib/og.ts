@@ -1,5 +1,5 @@
 export function ogImageUrl(slug: string): string {
-  return `/og/${encodeURIComponent(slug)}.svg`
+  return `/og/${encodeURIComponent(slug)}.png`
 }
 
 export function absoluteOgUrl(publishUrl: string, slug: string): string {
