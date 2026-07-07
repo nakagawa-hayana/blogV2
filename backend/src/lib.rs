@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 use worker::*;
 
 mod format;
+mod og;
 use format::naive_date_time_format;
 
 #[derive(Debug, Deserialize, serde::Serialize)]
@@ -42,8 +43,43 @@ async fn fetch(req: Request, env: Env, _ctx: Context) -> Result<Response> {
         .get_async("/articles/all", get_all_content)
         .post_async("/articles", save_article)
         .delete_async("/articles/:url_suffix", delete_article)
+        .get_async("/og/:url_suffix", get_og_image)
         .run(req, env)
         .await
+}
+
+pub async fn get_og_image(_req: Request, ctx: RouteContext<()>) -> Result<Response> {
+    let raw = ctx.param("url_suffix").cloned().unwrap_or_default();
+    let bare = raw
+        .strip_suffix(".png")
+        .map(|s| s.to_string())
+        .unwrap_or(raw);
+
+    let title = if bare == "default" || bare.is_empty() {
+        "ardririyの足跡".to_string()
+    } else {
+        let d1 = ctx.env.d1("DB")?;
+        let stmt = d1.prepare("SELECT title FROM Articles WHERE url_suffix = ?");
+        let row = stmt
+            .bind(&[bare.clone().into()])?
+            .first::<serde_json::Value>(None)
+            .await?;
+        row.and_then(|v| v.get("title").and_then(|t| t.as_str().map(|s| s.to_string())))
+            .unwrap_or_else(|| "ardririyの足跡".to_string())
+    };
+
+    let png = match og::render_png(&title) {
+        Ok(v) => v,
+        Err(e) => {
+            console_error!("og render failed: {}", e);
+            return Response::error(format!("og render failed: {}", e), 500);
+        }
+    };
+
+    let mut headers = Headers::new();
+    headers.set("Content-Type", "image/png")?;
+    headers.set("Cache-Control", "public, max-age=3600, s-maxage=86400")?;
+    Ok(Response::from_bytes(png)?.with_headers(headers))
 }
 
 pub async fn get_article_by_url_suffix(_req: Request, ctx: RouteContext<()>) -> Result<Response> {
