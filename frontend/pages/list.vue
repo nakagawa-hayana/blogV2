@@ -49,16 +49,6 @@ watchEffect(() => {
       </h1>
     </FadeIn>
 
-    <FadeIn :delay="100">
-      <div class="mt-6">
-        <TagFilter
-          :tags="current.allTags"
-          :active="currentTag"
-          @select="onSelectTag"
-        />
-      </div>
-    </FadeIn>
-
     <FadeIn :delay="180">
       <p class="mt-5 meta-mono">
         {{ current.totalCount }} 件
@@ -69,14 +59,26 @@ watchEffect(() => {
       <p>記事の取得に失敗しました。</p>
     </div>
 
-    <div v-else class="mt-6">
-      <ArticleGrid :articles="current.items" />
+    <div v-else class="list-body">
+      <div class="list-body__main">
+        <ArticleGrid :articles="current.items" />
 
-      <Pager
-        :current-page="currentPage"
-        :total-pages="current.totalPages"
-        :build-href="buildHref"
-      />
+        <Pager
+          :current-page="currentPage"
+          :total-pages="current.totalPages"
+          :build-href="buildHref"
+        />
+      </div>
+
+      <aside class="list-body__side">
+        <FadeIn :delay="100">
+          <TagFilter
+            :tags="current.allTags"
+            :active="currentTag"
+            @select="onSelectTag"
+          />
+        </FadeIn>
+      </aside>
     </div>
   </section>
 </template>
@@ -88,6 +90,37 @@ watchEffect(() => {
   font-weight: 700;
   letter-spacing: 0.02em;
 }
+
+.list-body {
+  margin-top: 24px;
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 24px;
+}
+
+.list-body__main {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.list-body__side {
+  flex-shrink: 0;
+}
+
+@media (min-width: 860px) {
+  .list-body {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 32px;
+  }
+
+  .list-body__side {
+    width: 280px;
+    position: sticky;
+    top: 24px;
+  }
+}
+
 .error {
   margin-top: 40px;
   text-align: center;

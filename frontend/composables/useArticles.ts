@@ -3,11 +3,16 @@ import { fetchAllArticles, parseTags } from '~/lib/api'
 
 export const PER_PAGE = 20
 
+export interface TagInfo {
+  name: string
+  count: number
+}
+
 export interface ArticleView {
   items: Article[]
   totalPages: number
   totalCount: number
-  allTags: string[]
+  allTags: TagInfo[]
 }
 
 export async function useArticles() {
@@ -19,7 +24,7 @@ export async function useArticles() {
 
   const all = computed<Article[]>(() => data.value ?? [])
 
-  const allTags = computed<string[]>(() => {
+  const allTags = computed<TagInfo[]>(() => {
     const tagCounts = new Map<string, number>()
     for (const a of all.value) {
       for (const t of parseTags(a.tags)) {
@@ -28,7 +33,7 @@ export async function useArticles() {
     }
     return [...tagCounts.entries()]
       .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
-      .map(([t]) => t)
+      .map(([name, count]) => ({ name, count }))
   })
 
   function view(tag: string | null, page: number, perPage = PER_PAGE): ArticleView {

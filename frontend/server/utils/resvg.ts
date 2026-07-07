@@ -7,11 +7,28 @@ let initPromise: Promise<void> | null = null
 async function ensureInit(): Promise<void> {
   if (initPromise) return initPromise
   initPromise = (async () => {
+    // Cloudflare Workers refuse `WebAssembly.instantiate()` even when handed a
+    // pre-compiled Module. Route the Module case through `new Instance()` so
+    // resvg-wasm's internal loader works on Workers.
+    const origInstantiate = WebAssembly.instantiate
+    ;(WebAssembly as any).instantiate = function (source: any, imports: any) {
+      if (source instanceof WebAssembly.Module) {
+        return Promise.resolve(new WebAssembly.Instance(source, imports))
+      }
+      return origInstantiate.call(WebAssembly, source, imports)
+    }
     try {
-      await initWasm(resvgWasm as WebAssembly.Module)
-    } catch (e) {
+      const mod = (resvgWasm as any) instanceof WebAssembly.Module
+        ? (resvgWasm as WebAssembly.Module)
+        : await WebAssembly.compile(resvgWasm as any)
+      await initWasm(mod)
+    }
+    catch (e) {
       const msg = String((e as Error).message || e)
       if (!/already initialized/i.test(msg)) throw e
+    }
+    finally {
+      ;(WebAssembly as any).instantiate = origInstantiate
     }
   })()
   return initPromise

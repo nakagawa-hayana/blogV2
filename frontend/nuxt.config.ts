@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'node:url'
 import tailwindcss from '@tailwindcss/vite'
 
 export default defineNuxtConfig({
@@ -30,6 +31,9 @@ export default defineNuxtConfig({
     preset: process.env.NITRO_PRESET || 'node-server',
     experimental: {
       wasm: true,
+    },
+    alias: {
+      'yoga-layout/load': fileURLToPath(new URL('./server/utils/yoga-load-shim.ts', import.meta.url)),
     },
     routeRules: {
       '/og/**': { headers: { 'Cache-Control': 'public, max-age=3600, s-maxage=86400' } },
