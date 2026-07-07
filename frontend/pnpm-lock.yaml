@@ -11,6 +11,9 @@ importers:
       '@resvg/resvg-wasm':
         specifier: ^2.6.2
         version: 2.6.2
+      harfbuzzjs:
+        specifier: ^0.10.3
+        version: 0.10.3
       katex:
         specifier: ^0.16.22
         version: 0.16.47

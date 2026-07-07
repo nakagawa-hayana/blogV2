@@ -1,6 +1,7 @@
 import satori from 'satori'
 import { getFont } from '../../utils/fonts'
 import { svgToPng } from '../../utils/resvg'
+import { getSubsettedFont } from '../../utils/font-subset'
 
 const WIDTH = 1200
 const HEIGHT = 630
@@ -29,7 +30,14 @@ function pickTitleSize(title: string): number {
 }
 
 async function renderTemplate(title: string): Promise<string> {
-  const headingFont = await getFont('zen-maru-gothic-700')
+  const fullFont = await getFont('zen-maru-gothic-700')
+  const subsetText = title + 'ardririyの足跡'
+  let headingFont: ArrayBuffer | Uint8Array
+  try {
+    headingFont = await getSubsettedFont(fullFont, subsetText)
+  } catch {
+    headingFont = fullFont
+  }
   const titleSize = pickTitleSize(title)
 
   const node = {
