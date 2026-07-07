@@ -1,6 +1,5 @@
 import satori from 'satori'
 import { getFont } from '../../utils/fonts'
-import { svgToPng } from '../../utils/resvg'
 
 const WIDTH = 1200
 const HEIGHT = 630
@@ -213,7 +212,7 @@ async function renderTemplate(title: string, tags: string[]): Promise<string> {
 
 export default defineEventHandler(async (event) => {
   const slug = getRouterParam(event, 'slug') ?? ''
-  const bare = slug.replace(/\.png$/i, '')
+  const bare = slug.replace(/\.(png|svg)$/i, '')
   const cfg = useRuntimeConfig()
 
   let title = 'ardririyの足跡'
@@ -228,9 +227,8 @@ export default defineEventHandler(async (event) => {
   }
 
   const svg = await renderTemplate(title, tagList)
-  const png = await svgToPng(svg, 1200)
 
-  setHeader(event, 'Content-Type', 'image/png')
+  setHeader(event, 'Content-Type', 'image/svg+xml; charset=utf-8')
   setHeader(event, 'Cache-Control', 'public, max-age=3600, s-maxage=86400')
-  return png
+  return svg
 })
