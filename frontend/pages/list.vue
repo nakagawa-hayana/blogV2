@@ -43,11 +43,21 @@ watchEffect(() => {
 
 <template>
   <section class="container-wide pt-6 pb-16">
-    <FadeIn>
-      <h1 class="list-title">
-        記事をさがす
-      </h1>
-    </FadeIn>
+    <div class="list-header">
+      <FadeIn>
+        <h1 class="list-title">
+          記事をさがす
+        </h1>
+      </FadeIn>
+
+      <FadeIn :delay="100" class="list-header__filter">
+        <TagFilter
+          :tags="current.allTags"
+          :active="currentTag"
+          @select="onSelectTag"
+        />
+      </FadeIn>
+    </div>
 
     <FadeIn :delay="180">
       <p class="mt-5 meta-mono">
@@ -59,26 +69,14 @@ watchEffect(() => {
       <p>記事の取得に失敗しました。</p>
     </div>
 
-    <div v-else class="list-body">
-      <div class="list-body__main">
-        <ArticleGrid :articles="current.items" />
+    <div v-else class="mt-6">
+      <ArticleGrid :articles="current.items" />
 
-        <Pager
-          :current-page="currentPage"
-          :total-pages="current.totalPages"
-          :build-href="buildHref"
-        />
-      </div>
-
-      <aside class="list-body__side">
-        <FadeIn :delay="100">
-          <TagFilter
-            :tags="current.allTags"
-            :active="currentTag"
-            @select="onSelectTag"
-          />
-        </FadeIn>
-      </aside>
+      <Pager
+        :current-page="currentPage"
+        :total-pages="current.totalPages"
+        :build-href="buildHref"
+      />
     </div>
   </section>
 </template>
@@ -91,33 +89,29 @@ watchEffect(() => {
   letter-spacing: 0.02em;
 }
 
-.list-body {
-  margin-top: 24px;
+.list-header {
   display: flex;
-  flex-direction: column-reverse;
-  gap: 24px;
+  flex-direction: column;
+  gap: 16px;
+  align-items: stretch;
 }
 
-.list-body__main {
-  min-width: 0;
-  flex: 1 1 auto;
+.list-header__filter {
+  width: 100%;
+  max-width: 420px;
 }
 
-.list-body__side {
-  flex-shrink: 0;
-}
-
-@media (min-width: 860px) {
-  .list-body {
+@media (min-width: 720px) {
+  .list-header {
     flex-direction: row;
-    align-items: flex-start;
-    gap: 32px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
   }
 
-  .list-body__side {
-    width: 280px;
-    position: sticky;
-    top: 24px;
+  .list-header__filter {
+    width: 320px;
+    flex-shrink: 0;
   }
 }
 
