@@ -3,7 +3,7 @@ main = "build/worker/shim.mjs"
 compatibility_date = "2025-07-24"
 
 [build]
-command = "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y && . \"$HOME/.cargo/env\" && cargo install -q worker-build@^0.7 && worker-build --release"
+command = "test -f build/worker/shim.mjs && test -f build/index_bg.wasm || (curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y && . \"$HOME/.cargo/env\" && cargo install -q worker-build@^0.7 && worker-build --release)"
 
 [[d1_databases]]
 binding = "DB"

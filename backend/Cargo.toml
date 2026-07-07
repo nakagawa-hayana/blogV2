@@ -11,10 +11,8 @@ release = false
 crate-type = ["cdylib"]
 
 [dependencies]
-worker = { version = "0.7.1", features = ['http', 'axum', 'd1'] }
+worker = { version = "0.7.1", features = ['http', 'd1'] }
 worker-macros = { version = "0.6.0", features = ['http'] }
-axum = { version = "0.8", default-features = false }
-tower-service = "0.3.3"
 console_error_panic_hook = { version = "0.1.7" }
 chrono = { version = "0.4.41", features = ["serde"] }
 serde = "1.0.219"
@@ -24,3 +22,10 @@ usvg = { version = "0.44", default-features = false, features = ["text"] }
 tiny-skia = { version = "0.11", default-features = false, features = ["std", "png"] }
 getrandom = { version = "0.2", features = ["js"] }
 html-escape = "0.2"
+
+[profile.release]
+opt-level = "z"
+lto = true
+codegen-units = 1
+strip = true
+panic = "abort"
