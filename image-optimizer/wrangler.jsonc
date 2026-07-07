@@ -1,0 +1,25 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "image-optimizer",
+	"main": "src/index.ts",
+	"compatibility_date": "2025-12-02",
+	"observability": {
+		"enabled": true
+	},
+	"r2_buckets": [
+		{
+			"bucket_name": "blog-images",
+			"binding": "MY_BUCKET"
+		}
+	],
+	"rules": [
+		{
+			"type": "CompiledWasm",
+			"globs": ["**/*.wasm"],
+			"fallthrough": true
+		}
+	],
+	"vars": {
+		"PUBLIC_IMAGE_BASE_URL": "https://img.ardririy.net",
+	}
+}
