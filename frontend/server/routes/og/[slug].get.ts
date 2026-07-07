@@ -6,7 +6,6 @@ const HEIGHT = 630
 
 interface ArticleLite {
   title: string
-  tags: string | null
 }
 
 async function fetchArticleLite(slug: string, backendUrl: string): Promise<ArticleLite | null> {
@@ -14,15 +13,10 @@ async function fetchArticleLite(slug: string, backendUrl: string): Promise<Artic
     const res = await fetch(`${backendUrl}/articles/${slug}`)
     if (!res.ok) return null
     const data = (await res.json()) as any
-    return { title: String(data.title ?? ''), tags: data.tags ?? null }
+    return { title: String(data.title ?? '') }
   } catch {
     return null
   }
-}
-
-function parseTags(tags: string | null): string[] {
-  if (!tags) return []
-  return tags.split(',').map(t => t.trim()).filter(Boolean)
 }
 
 function pickTitleSize(title: string): number {
@@ -33,7 +27,7 @@ function pickTitleSize(title: string): number {
   return 50
 }
 
-async function renderTemplate(title: string, tags: string[]): Promise<string> {
+async function renderTemplate(title: string): Promise<string> {
   const headingFont = await getFont('zen-maru-gothic-700')
   const monoFont = await getFont('dm-mono-500')
   const titleSize = pickTitleSize(title)
@@ -88,33 +82,6 @@ async function renderTemplate(title: string, tags: string[]): Promise<string> {
               gap: '20px',
             },
             children: [
-              tags.length > 0
-                ? {
-                  type: 'div',
-                  props: {
-                    style: {
-                      display: 'flex',
-                      flexDirection: 'row',
-                      gap: '10px',
-                      flexWrap: 'wrap',
-                    },
-                    children: tags.slice(0, 3).map((t) => ({
-                      type: 'div',
-                      props: {
-                        style: {
-                          padding: '6px 18px',
-                          borderRadius: '999px',
-                          backgroundColor: '#e9b8cb',
-                          color: '#ffffff',
-                          fontSize: 24,
-                          fontFamily: 'Zen Maru Gothic, sans-serif',
-                        },
-                        children: `#${t}`,
-                      },
-                    })),
-                  },
-                }
-                : { type: 'div', props: { style: { height: '4px' } } },
               {
                 type: 'div',
                 props: {
@@ -216,17 +183,15 @@ export default defineEventHandler(async (event) => {
   const cfg = useRuntimeConfig()
 
   let title = 'ardririyの足跡'
-  let tagList: string[] = []
 
   if (bare !== 'default') {
     const article = await fetchArticleLite(bare, cfg.backendUrl)
     if (article) {
       title = article.title || title
-      tagList = parseTags(article.tags)
     }
   }
 
-  const svg = await renderTemplate(title, tagList)
+  const svg = await renderTemplate(title)
 
   setHeader(event, 'Content-Type', 'image/svg+xml; charset=utf-8')
   setHeader(event, 'Cache-Control', 'public, max-age=3600, s-maxage=86400')

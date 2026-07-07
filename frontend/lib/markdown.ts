@@ -9,7 +9,21 @@ import rehypeStringify from 'rehype-stringify'
 import { visit } from 'unist-util-visit'
 import type { Root as MdRoot, Text as MdText } from 'mdast'
 import type { Root as HRoot, Element as HElement } from 'hast'
-import { getHighlighter, type Highlighter } from 'shiki'
+import { createHighlighterCore, type HighlighterCore } from 'shiki/core'
+import { createOnigurumaEngine } from 'shiki/engine/oniguruma'
+import githubDark from 'shiki/themes/github-dark.mjs'
+import langTypescript from 'shiki/langs/typescript.mjs'
+import langTsx from 'shiki/langs/tsx.mjs'
+import langJson from 'shiki/langs/json.mjs'
+import langBash from 'shiki/langs/bash.mjs'
+import langShell from 'shiki/langs/shell.mjs'
+import langPython from 'shiki/langs/python.mjs'
+import langRust from 'shiki/langs/rust.mjs'
+import langC from 'shiki/langs/c.mjs'
+import langCpp from 'shiki/langs/cpp.mjs'
+import langYaml from 'shiki/langs/yaml.mjs'
+import langToml from 'shiki/langs/toml.mjs'
+import langDiff from 'shiki/langs/diff.mjs'
 
 const WIKI_LINK_RE = /!\[\[([^\]]+)\]\]/g
 
@@ -64,16 +78,17 @@ function rehypeExternalLinks() {
   }
 }
 
-let highlighterPromise: Promise<Highlighter> | null = null
-function loadHighlighter(): Promise<Highlighter> {
+let highlighterPromise: Promise<HighlighterCore> | null = null
+function loadHighlighter(): Promise<HighlighterCore> {
   if (!highlighterPromise) {
-    highlighterPromise = getHighlighter({
-      themes: ['github-dark'],
+    highlighterPromise = createHighlighterCore({
+      themes: [githubDark],
       langs: [
-        'javascript', 'typescript', 'tsx', 'jsx', 'json', 'html', 'css',
-        'bash', 'shell', 'python', 'rust', 'go', 'ruby', 'java',
-        'c', 'cpp', 'yaml', 'toml', 'markdown', 'sql', 'diff', 'vue',
+        langTypescript, langTsx, langJson,
+        langBash, langShell, langPython, langRust,
+        langC, langCpp, langYaml, langToml, langDiff,
       ],
+      engine: createOnigurumaEngine(import('shiki/wasm')),
     })
   }
   return highlighterPromise
