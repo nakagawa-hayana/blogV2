@@ -50,8 +50,7 @@ async function renderTemplate(title: string, tags: string[]): Promise<string> {
         justifyContent: 'space-between',
         padding: '72px 84px',
         backgroundColor: '#fbf4f4',
-        backgroundImage:
-          'radial-gradient(circle at 88% 12%, #f7e4ea 0%, transparent 42%), radial-gradient(circle at 12% 92%, #ece7f8 0%, transparent 48%)',
+        border: '10px solid #e9b8cb',
         position: 'relative',
         fontFamily: 'Zen Maru Gothic, DM Mono, sans-serif',
       },
@@ -75,18 +74,6 @@ async function renderTemplate(title: string, tags: string[]): Promise<string> {
                     borderRadius: '999px',
                     backgroundColor: '#e9b8cb',
                   },
-                },
-              },
-              {
-                type: 'div',
-                props: {
-                  style: {
-                    fontFamily: 'DM Mono, monospace',
-                    fontSize: 22,
-                    color: '#c26e8c',
-                    letterSpacing: '0.04em',
-                  },
-                  children: 'ardririy no ashiato',
                 },
               },
             ],
@@ -233,7 +220,7 @@ export default defineEventHandler(async (event) => {
   let tagList: string[] = []
 
   if (bare !== 'default') {
-    const article = await fetchArticleLite(bare, cfg.public.backendUrl)
+    const article = await fetchArticleLite(bare, cfg.backendUrl)
     if (article) {
       title = article.title || title
       tagList = parseTags(article.tags)

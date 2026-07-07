@@ -5,14 +5,16 @@ import { ogImageUrl } from '~/lib/og'
 const route = useRoute()
 const slug = computed(() => String(route.params.slug))
 
-const { data: article, error } = await useArticle(slug.value)
+const { data: article, error } = await useArticle(slug)
 
-if (!article.value && !error.value) {
-  throw createError({ statusCode: 404, statusMessage: 'Article not found' })
-}
-if (error.value) {
-  throw createError({ statusCode: 500, statusMessage: 'Failed to load article' })
-}
+watchEffect(() => {
+  if (!article.value && !error.value) {
+    throw createError({ statusCode: 404, statusMessage: 'Article not found' })
+  }
+  if (error.value) {
+    throw createError({ statusCode: 500, statusMessage: 'Failed to load article' })
+  }
+})
 
 const tags = computed(() => parseTags(article.value?.tags))
 const date = computed(() => article.value ? formatDateJa(article.value.updated_at) : '')
@@ -53,13 +55,7 @@ useSiteMeta({
     </FadeIn>
 
     <FadeIn :delay="220">
-      <div class="author">
-        <span class="author__avatar" aria-hidden="true" />
-        <div class="author__meta">
-          <span class="author__name">ardririy</span>
-          <span class="author__date meta-mono">{{ date }}</span>
-        </div>
-      </div>
+      <div class="date-line meta-mono">{{ date }}</div>
     </FadeIn>
 
     <FadeIn :delay="320">
@@ -85,7 +81,7 @@ useSiteMeta({
         <NuxtLink to="/list" class="back-link">
           ← 一覧へ
         </NuxtLink>
-        <ShareOnX :title="article.title" :url-suffix="article.url_suffix" />
+        <ShareOnTwitter :title="article.title" :url-suffix="article.url_suffix" />
       </div>
     </FadeIn>
   </article>
@@ -101,29 +97,8 @@ useSiteMeta({
   margin-top: 4px;
 }
 
-.author {
-  margin-top: 20px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.author__avatar {
-  width: 38px; height: 38px;
-  border-radius: 999px;
-  background: radial-gradient(circle at 30% 30%, var(--color-acc-soft), var(--color-acc));
-}
-.author__meta {
-  display: flex;
-  flex-direction: column;
-}
-.author__name {
-  font-family: var(--font-heading);
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--color-ink);
-}
-.author__date {
-  margin-top: 2px;
+.date-line {
+  margin-top: 16px;
 }
 
 .cover {

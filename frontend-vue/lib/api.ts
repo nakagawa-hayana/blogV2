@@ -46,20 +46,21 @@ export function formatDateJa(iso: string): string {
   })
 }
 
-function backendUrl(): string {
-  const cfg = useRuntimeConfig()
-  return cfg.public.backendUrl
+function articlesUrl(path: string): string {
+  if (import.meta.server) {
+    const cfg = useRuntimeConfig()
+    return `${cfg.backendUrl}${path}`
+  }
+  return `/api${path}`
 }
 
 export async function fetchAllArticles(): Promise<Article[]> {
-  const url = `${backendUrl()}/articles/all`
-  const data = await $fetch<Article[]>(url)
+  const data = await $fetch<Article[]>(articlesUrl('/articles/all'))
   return data.map(normalizeContent)
 }
 
 export async function fetchArticle(slug: string): Promise<Article> {
-  const url = `${backendUrl()}/articles/${slug}`
-  const data = await $fetch<Article>(url)
+  const data = await $fetch<Article>(articlesUrl(`/articles/${slug}`))
   return normalizeContent(data)
 }
 

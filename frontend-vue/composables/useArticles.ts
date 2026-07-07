@@ -11,7 +11,7 @@ export interface ArticleView {
 }
 
 export async function useArticles() {
-  const { data, error, refresh } = await useAsyncData<Article[]>(
+  const { data, error, refresh, status } = await useAsyncData<Article[]>(
     'all-articles',
     () => fetchAllArticles(),
     { default: () => [] },
@@ -44,5 +44,5 @@ export async function useArticles() {
     return { items, totalPages, totalCount, allTags: allTags.value }
   }
 
-  return { all, allTags, view, error, refresh }
+  return { all, allTags, view, error, refresh, status }
 }

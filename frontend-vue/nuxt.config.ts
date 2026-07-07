@@ -19,8 +19,8 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     authToken: process.env.TOKEN || '',
+    backendUrl: process.env.BACKEND_URL || 'http://localhost:8787',
     public: {
-      backendUrl: process.env.BACKEND_URL || 'http://localhost:8787',
       publishUrl: process.env.PUBLISH_URL || 'http://localhost:3000',
       siteName: 'ardririyの足跡',
       siteDescription: 'ardririyのブログ',

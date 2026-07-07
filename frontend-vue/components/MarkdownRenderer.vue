@@ -6,10 +6,10 @@ const props = defineProps<{
   cacheKey: string
 }>()
 
-const { data: html } = await useAsyncData<string>(
+const { data: html } = useLazyAsyncData<string>(
   `md:${props.cacheKey}`,
   () => renderMarkdown(props.content),
-  { default: () => '' },
+  { default: () => '', watch: [() => props.cacheKey] },
 )
 </script>
 

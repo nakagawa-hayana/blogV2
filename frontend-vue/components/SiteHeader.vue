@@ -6,8 +6,7 @@ const isArticle = computed(() => route.path.startsWith('/article'))
 
 <template>
   <header class="container-wide flex items-center justify-between pt-7 pb-5">
-    <NuxtLink to="/" class="flex items-center gap-2.5">
-      <span class="logo-mark" aria-hidden="true" />
+    <NuxtLink to="/" class="flex items-center">
       <span class="text-base font-semibold" style="font-family: var(--font-heading)">
         ardririyの足跡
       </span>
@@ -33,12 +32,4 @@ const isArticle = computed(() => route.path.startsWith('/article'))
 </template>
 
 <style scoped>
-.logo-mark {
-  display: inline-block;
-  width: 32px;
-  height: 32px;
-  border-radius: 999px;
-  background: radial-gradient(circle at 30% 30%, var(--color-acc-soft), var(--color-acc));
-  box-shadow: 0 3px 10px -6px rgba(194, 110, 140, 0.6);
-}
 </style>

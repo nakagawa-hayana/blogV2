@@ -31,7 +31,7 @@ useSiteMeta({
           <span class="link-card__arrow" aria-hidden="true">→</span>
         </NuxtLink>
         <a
-          href="https://x.com/ardririy"
+          href="https://twitter.com/ardririy"
           target="_blank"
           rel="noopener noreferrer"
           class="link-card link-card--secondary"
